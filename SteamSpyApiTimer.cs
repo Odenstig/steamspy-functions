@@ -27,13 +27,17 @@ namespace functions
             HttpResponseMessage response = client.GetAsync(urlParameters).Result;
 
             var jsonRet = await response.Content.ReadAsStringAsync();
-            var allGames = JsonSerializer.Deserialize<Test>(jsonRet);
+            var allGames = JsonSerializer.Deserialize<Dictionary<string, ResponseData>>(jsonRet);
 
-            // var tenGames = allGames.OrderBy(i => i.average_2weeks).Take(10);
+            var tenGames = allGames.OrderBy(i => i.Value.Average2weeks).Take(10);
+
 
 
             _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
-            _logger.LogInformation($"{allGames.TestList}");
+            foreach (var item in tenGames)
+            {
+                _logger.LogInformation($"{item}");
+            }
             _logger.LogInformation($"Next timer schedule at: {myTimer.ScheduleStatus.Next}");
         }
     }
