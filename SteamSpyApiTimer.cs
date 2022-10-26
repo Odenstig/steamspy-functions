@@ -20,7 +20,8 @@ namespace functions
         }
 
         [Function("SteamSpyApiTimer")]
-        public async Task Run([TimerTrigger("0 */5 * * * *")] MyInfo myTimer)
+        [QueueOutput("games-list", Connection = "AzureWebJobsStorage")] //För storage
+        public async Task<TopTenGamesList> Run([TimerTrigger("0 */5 * * * *")] MyInfo myTimer)
         {
 
             client.BaseAddress = new Uri(URL);
@@ -31,16 +32,22 @@ namespace functions
 
             var tenGames = allGames.OrderBy(i => i.Value.Average2weeks).Take(10);
 
-
+            //Serializar så att vi kan lägga in strängen i DB senare.
+            var serJson = JsonSerializer.Serialize(tenGames);
 
             _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
-            foreach (var item in tenGames)
-            {
-                _logger.LogInformation($"{item}");
-            }
+
+            //Kan plocka bort den här senare.
+            _logger.LogInformation($"{serJson}");
+
             _logger.LogInformation($"Next timer schedule at: {myTimer.ScheduleStatus.Next}");
+
+            return new TopTenGamesList("1", DateTimeOffset.UtcNow, serJson);
         }
     }
+
+    //Vette fan om DeviceId är nödvändigt här, kan säkert plocka bort den senare.
+    public record TopTenGamesList(string DeviceId, DateTimeOffset Timestamp, string Json);
 
     public class MyInfo
     {
