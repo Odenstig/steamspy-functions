@@ -28,7 +28,7 @@ namespace functions.queue
 
                 var allGames = JsonSerializer.Deserialize<Dictionary<string, ResponseData>>(gamesList.Json);
 
-                var tenGames = allGames.OrderBy(i => i.Value.Average2weeks).Take(10);
+                var tenGames = allGames.OrderByDescending(i => i.Value.Average2weeks).Take(10);
 
                 var serJson = JsonSerializer.Serialize(tenGames);
 
