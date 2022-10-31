@@ -25,16 +25,29 @@ namespace functions
         [QueueOutput("games-list", Connection = "AzureWebJobsStorage")] //För storage
         public async Task<TopTenGamesList> Run([TimerTrigger("0 */5 * * * *")] MyInfo myTimer)
         {
+            try
+            {
+                client.BaseAddress = new Uri(_URL);
+                HttpResponseMessage response = client.GetAsync(_urlParameters).Result;
 
-            client.BaseAddress = new Uri(_URL);
-            HttpResponseMessage response = client.GetAsync(_urlParameters).Result;
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogError("Failed to get Json Data");
+                    throw new HttpRequestException();
+                }
 
-            var jsonRet = await response.Content.ReadAsStringAsync();
+                var jsonRet = await response.Content.ReadAsStringAsync();
 
-            _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
-            _logger.LogInformation($"Next timer schedule at: {myTimer.ScheduleStatus.Next}");
+                _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
+                _logger.LogInformation($"Next timer schedule at: {myTimer.ScheduleStatus.Next}");
 
-            return new TopTenGamesList("1", DateTimeOffset.UtcNow, jsonRet);
+                return new TopTenGamesList("1", DateTimeOffset.UtcNow, jsonRet);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error has occured: {ex}");
+                throw;
+            }
         }
     }
 
