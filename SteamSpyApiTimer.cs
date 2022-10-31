@@ -33,7 +33,7 @@ namespace functions
                 if (!response.IsSuccessStatusCode)
                 {
                     _logger.LogError("Failed to get Json Data");
-                    throw new HttpRequestException();
+                    throw new HttpRequestException($"Failed to get Json Data, Error code: {response.StatusCode}");
                 }
 
                 var jsonRet = await response.Content.ReadAsStringAsync();
