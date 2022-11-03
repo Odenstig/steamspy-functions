@@ -16,6 +16,7 @@ namespace functions.queue
         }
 
         [Function("GamesListProcessor")]
+        [TableOutput("Games", Connection = "AzureWebJobsStorage")]
         public TableData Run([QueueTrigger("games-list", Connection = "AzureWebJobsStorage")] TopTenGamesList gamesList)
         {
             try
