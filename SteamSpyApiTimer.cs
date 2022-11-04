@@ -22,7 +22,7 @@ namespace functions
         }
 
         [Function("SteamSpyApiTimer")]
-        [QueueOutput("games-list", Connection = "AzureWebJobsStorage")] //För storage
+        [QueueOutput("games-list", Connection = "AzureWebJobsStorage"),] //För storage
         public async Task<TopTenGamesList> Run([TimerTrigger("0 */5 * * * *")] MyInfo myTimer)
         {
             try
